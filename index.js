@@ -176,3 +176,190 @@ function calculateDivision() {
 
     resultElement.textContent += " (Difference: " + difference + ")";
 }
+
+function calculateUnusedNumbersSolution() {
+    let target = parseInt(document.getElementById("target").value.trim());
+    if (isNaN(target)) {
+        document.getElementById("unused-numbers-solution").textContent = "Solution with Most Unused Numbers: Invalid target";
+        return;
+    }
+
+    let unusedValues = [];
+    let yellowValues = [];
+    let usedValues = new Set();
+
+    for (let value in arr) {
+        if (arr[value][2].includes(true)) {
+            usedValues.add(value);
+        } else if (arr[value][1].includes(true)) {
+            yellowValues.push(parseInt(value));
+        } else if (!isNaN(value)) {
+            unusedValues.push(parseInt(value));
+        }
+    }
+
+    unusedValues.sort((a, b) => b - a);
+    yellowValues.sort((a, b) => b - a);
+
+    let allValues = unusedValues.concat(yellowValues).concat(Array.from(usedValues).map(Number)).sort((a, b) => b - a);
+
+    let solution = '';
+    let bestScore = -1;
+
+    // Try forming the solution as 1XX - XX = target using the most unused numbers
+    for (let i = 100; i <= 199; i++) {
+        for (let j = 0; j <= 99; j++) {
+            let result = i - j;
+            if (result === target) {
+                let equation = `${i}-${j.toString().padStart(2, '0')}`;
+                if (equation.length === 6) {
+                    let usedInEquation = new Set(equation.split('').filter(char => !isNaN(char)).map(Number));
+                    let unusedCount = Array.from(usedInEquation).filter(num => unusedValues.includes(num)).length;
+                    let yellowCount = Array.from(usedInEquation).filter(num => yellowValues.includes(num)).length;
+                    let score = (unusedCount * 2) + yellowCount; // Prioritize unused numbers over yellow
+                    if (score > bestScore) {
+                        solution = equation;
+                        bestScore = score;
+                    }
+                }
+            }
+        }
+    }
+
+    if (!solution) {
+        solution = 'No solution found';
+    }
+
+    document.getElementById("unused-numbers-solution").textContent = "Solution with Most Unused Numbers: " + solution;
+}
+
+function calculateUnusedNumbersSolution() {
+    let target = parseInt(document.getElementById("target").value.trim());
+    if (isNaN(target)) {
+        document.getElementById("unused-numbers-solution").textContent = "Solution with Most Unused Numbers: Invalid target";
+        return;
+    }
+
+    let unusedValues = [];
+    let yellowValues = [];
+    let usedValues = new Set();
+
+    for (let value in arr) {
+        if (arr[value][2].includes(true)) {
+            usedValues.add(value);
+        } else if (arr[value][1].includes(true)) {
+            yellowValues.push(parseInt(value));
+        } else if (!isNaN(value)) {
+            unusedValues.push(parseInt(value));
+        }
+    }
+
+    unusedValues.sort((a, b) => b - a);
+    yellowValues.sort((a, b) => b - a);
+
+    let allValues = unusedValues.concat(yellowValues).concat(Array.from(usedValues).map(Number)).sort((a, b) => b - a);
+
+    let solution = '';
+    let bestScore = -1;
+
+    // Try forming the solution as 1XX - XX = target using the most unused numbers
+    for (let i = 100; i <= 199; i++) {
+        for (let j = 0; j <= 99; j++) {
+            let result = i - j;
+            if (result === target) {
+                let equation = `${i}-${j.toString().padStart(2, '0')}`;
+                if (equation.length === 6) {
+                    let usedInEquation = new Set(equation.split('').filter(char => !isNaN(char)).map(Number));
+                    let unusedCount = Array.from(usedInEquation).filter(num => unusedValues.includes(num)).length;
+                    let yellowCount = Array.from(usedInEquation).filter(num => yellowValues.includes(num)).length;
+                    let score = (unusedCount * 2) + yellowCount; // Prioritize unused numbers over yellow
+                    if (score > bestScore) {
+                        solution = equation;
+                        bestScore = score;
+                    }
+                }
+            }
+        }
+    }
+
+    if (!solution) {
+        solution = 'No solution found';
+    }
+
+    document.getElementById("unused-numbers-solution").textContent = "Solution with Most Unused Numbers: " + solution;
+}
+
+function findAllCombinationsSolution() {
+    let target = parseInt(document.getElementById("target").value.trim());
+    if (isNaN(target)) {
+        document.getElementById("all-combinations-solution").textContent = "All Combinations Solution: Invalid target";
+        return;
+    }
+
+    let greenValues = new Array(6).fill(null);
+    let yellowValues = [];
+    let usedCombinations = new Set();
+
+    // Collect green and yellow values
+    for (let value in arr) {
+        for (let i = 0; i < 6; i++) {
+            if (arr[value][2][i] === true) {
+                greenValues[i] = value;
+            } else if (arr[value][1][i] === true) {
+                yellowValues.push({ value: value, index: i });
+            }
+        }
+    }
+
+    // Generate permutations of yellow values
+    function* permutations(arr) {
+        if (arr.length === 0) yield [];
+        else {
+            let [first, ...rest] = arr;
+            for (let perm of permutations(rest)) {
+                for (let i = 0; i <= perm.length; i++) {
+                    yield [...perm.slice(0, i), first, ...perm.slice(i)];
+                }
+            }
+        }
+    }
+
+    // Try all permutations of yellow values
+    let solutions = [];
+    for (let perm of permutations(yellowValues)) {
+        let expression = '';
+        let permIndex = 0;
+        let usedIndexes = new Set();
+
+        for (let i = 0; i < 6; i++) {
+            if (greenValues[i] !== null) {
+                expression += greenValues[i];
+            } else if (permIndex < perm.length) {
+                while (usedIndexes.has(perm[permIndex].index)) {
+                    permIndex++;
+                }
+                expression += perm[permIndex].value;
+                usedIndexes.add(perm[permIndex].index);
+            } else {
+                expression += '0'; // Fallback for missing values
+            }
+        }
+
+        if (!usedCombinations.has(expression)) {
+            try {
+                if (eval(expression) === target) {
+                    solutions.push(expression);
+                    usedCombinations.add(expression);
+                }
+            } catch (e) {
+                // Ignore invalid expressions
+            }
+        }
+    }
+
+    if (solutions.length === 0) {
+        solutions.push('No solution found');
+    }
+
+    document.getElementById("all-combinations-solution").textContent = "All Combinations Solution: " + solutions.join(', ');
+}

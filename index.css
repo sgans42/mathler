@@ -92,7 +92,7 @@ input[type="number"], .grid-item input {
     margin-bottom: 20px;
 }
 
-#most-likely-solution, #unused-numbers-solution {
+#most-likely-solution, #unused-numbers-solution, #all-combinations-solution {
     margin-bottom: 20px;
     font-size: 18px;
 }
